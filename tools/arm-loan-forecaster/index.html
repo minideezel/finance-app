@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ARM Loan Forecaster</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+</head>
+<body class="bg-gray-50">
+    <div class="min-h-screen py-8 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto">
+            <!-- Header -->
+            <div class="mb-8">
+                <a href="../../index.html" class="text-blue-600 hover:text-blue-800 mb-4 inline-flex items-center">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                    </svg>
+                    Back to Tools
+                </a>
+                <h1 class="text-4xl font-bold text-gray-900 mb-2">ARM Loan Forecaster</h1>
+                <p class="text-gray-600">Calculate and visualize your adjustable-rate mortgage amortization</p>
+            </div>
+
+            <!-- Main Content -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Left Panel - Inputs -->
+                <div class="lg:col-span-1 space-y-6">
+                    <!-- Basic Loan Details -->
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h2 class="text-xl font-semibold text-gray-900 mb-4">Loan Details</h2>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+                                <input type="date" id="startDate" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Loan Amount ($)</label>
+                                <input type="number" id="loanAmount" placeholder="300000" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Starting Interest Rate (%)</label>
+                                <input type="number" id="startingRate" step="0.01" placeholder="3.5" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Loan Term (years)</label>
+                                <input type="number" id="loanTerm" placeholder="30" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Interest Rate Changes -->
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h2 class="text-xl font-semibold text-gray-900 mb-4">Interest Rate Changes</h2>
+                        
+                        <div id="rateChangesList" class="space-y-3 mb-4">
+                            <!-- Rate changes will be added here -->
+                        </div>
+                        
+                        <button id="addRateChange" class="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+                            + Add Rate Change
+                        </button>
+                    </div>
+
+                    <!-- One-Time Payments -->
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h2 class="text-xl font-semibold text-gray-900 mb-4">One-Time Payments</h2>
+                        
+                        <div id="oneTimePaymentsList" class="space-y-3 mb-4">
+                            <!-- One-time payments will be added here -->
+                        </div>
+                        
+                        <button id="addOneTimePayment" class="w-full px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors">
+                            + Add One-Time Payment
+                        </button>
+                    </div>
+
+                    <!-- Extra Monthly Payment -->
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h2 class="text-xl font-semibold text-gray-900 mb-4">Extra Monthly Payment</h2>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Extra Amount ($)</label>
+                                <input type="number" id="extraMonthlyAmount" placeholder="0" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+                                <input type="date" id="extraMonthlyStartDate" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Reset Buttons -->
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h2 class="text-xl font-semibold text-gray-900 mb-4">Reset Options</h2>
+                        
+                        <div class="space-y-3">
+                            <button id="resetModifications" class="w-full px-4 py-2 bg-yellow-600 text-white rounded-md hover:bg-yellow-700 transition-colors">
+                                Reset Modifications Only
+                            </button>
+                            <button id="resetAll" class="w-full px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors">
+                                Reset Everything
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Panel - Outputs and Graph -->
+                <div class="lg:col-span-2 space-y-6">
+                    <!-- Summary Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <h3 class="text-sm font-medium text-gray-500 mb-1">Monthly Payment</h3>
+                            <p id="monthlyPayment" class="text-3xl font-bold text-gray-900">$0</p>
+                        </div>
+                        
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <h3 class="text-sm font-medium text-gray-500 mb-1">Total Cost</h3>
+                            <p id="totalCost" class="text-3xl font-bold text-gray-900">$0</p>
+                        </div>
+                        
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <h3 class="text-sm font-medium text-gray-500 mb-1">Total Interest</h3>
+                            <p id="totalInterest" class="text-3xl font-bold text-gray-900">$0</p>
+                        </div>
+                        
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <h3 class="text-sm font-medium text-gray-500 mb-1">Payoff Date</h3>
+                            <p id="payoffDate" class="text-2xl font-bold text-gray-900">-</p>
+                            <p id="payoffTime" class="text-sm text-gray-500 mt-1">-</p>
+                        </div>
+                    </div>
+
+                    <!-- Rate Change Summary -->
+                    <div id="rateChangeSummary" class="bg-blue-50 rounded-lg shadow p-6 hidden">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">📊 Payment Schedule</h3>
+                        <div id="rateChangeSummaryContent" class="space-y-2">
+                            <!-- Rate change summary will be populated here -->
+                        </div>
+                    </div>
+
+                    <!-- Savings Comparison -->
+                    <div id="savingsSection" class="bg-gradient-to-r from-green-50 to-blue-50 rounded-lg shadow p-6 hidden">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">💰 Savings with Extra Payments</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <p class="text-sm text-gray-600">Interest Saved</p>
+                                <p id="interestSaved" class="text-2xl font-bold text-green-600">$0</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">Time Saved</p>
+                                <p id="timeSaved" class="text-2xl font-bold text-blue-600">0 months</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Graph -->
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h2 class="text-xl font-semibold text-gray-900 mb-4">Loan Balance Over Time</h2>
+                        <div class="relative" style="height: 400px;">
+                            <canvas id="loanChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Amortization Table -->
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h2 class="text-xl font-semibold text-gray-900 mb-4">Amortization Schedule</h2>
+                        <div class="overflow-x-auto">
+                            <div class="max-h-96 overflow-y-auto">
+                                <table class="min-w-full divide-y divide-gray-200">
+                                    <thead class="bg-gray-50 sticky top-0">
+                                        <tr>
+                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payment #</th>
+                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payment</th>
+                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Principal</th>
+                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Interest</th>
+                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Extra</th>
+                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Balance</th>
+                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rate</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="amortizationTable" class="bg-white divide-y divide-gray-200">
+                                        <!-- Amortization rows will be added here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

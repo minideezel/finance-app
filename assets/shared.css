@@ -1,0 +1,11 @@
+/* Shared styles for all finance tools */
+/* This file can be used for common styling across multiple tools */
+
+:root {
+    --primary-color: #2563eb;
+    --secondary-color: #10b981;
+    --danger-color: #ef4444;
+    --warning-color: #f59e0b;
+}
+
+/* You can add shared utility classes and styles here as you build more tools */
