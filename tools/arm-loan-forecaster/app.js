@@ -591,27 +591,66 @@ class LoanCalculator {
                 y: p.balance
             }));
 
+        // Payment breakdown data (use modified schedule)
+        const principalData = modified.schedule
+            .filter((_, i) => i % sampleRate === 0 || i === modified.schedule.length - 1)
+            .map(p => ({
+                x: p.date.getTime(),
+                y: p.principal + p.extraPayment
+            }));
+
+        const interestData = modified.schedule
+            .filter((_, i) => i % sampleRate === 0 || i === modified.schedule.length - 1)
+            .map(p => ({
+                x: p.date.getTime(),
+                y: p.interest
+            }));
+
         this.chart = new Chart(ctx.getContext('2d'), {
             type: 'line',
             data: {
                 datasets: [
                     {
-                        label: 'Original Loan',
+                        label: 'Original Balance',
                         data: originalData,
                         borderColor: 'rgb(59, 130, 246)',
                         backgroundColor: 'rgba(59, 130, 246, 0.1)',
                         tension: 0.1,
                         pointRadius: 0,
-                        borderWidth: 2
+                        borderWidth: 2,
+                        yAxisID: 'y-balance'
                     },
                     {
-                        label: 'Modified Loan',
+                        label: 'Modified Balance',
                         data: modifiedData,
                         borderColor: 'rgb(16, 185, 129)',
                         backgroundColor: 'rgba(16, 185, 129, 0.1)',
                         tension: 0.1,
                         pointRadius: 0,
-                        borderWidth: 2
+                        borderWidth: 2,
+                        yAxisID: 'y-balance'
+                    },
+                    {
+                        label: 'Principal Payment',
+                        data: principalData,
+                        borderColor: 'rgb(34, 197, 94)',
+                        backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                        tension: 0.1,
+                        pointRadius: 0,
+                        borderWidth: 2,
+                        borderDash: [5, 5],
+                        yAxisID: 'y-payment'
+                    },
+                    {
+                        label: 'Interest Payment',
+                        data: interestData,
+                        borderColor: 'rgb(239, 68, 68)',
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        tension: 0.1,
+                        pointRadius: 0,
+                        borderWidth: 2,
+                        borderDash: [5, 5],
+                        yAxisID: 'y-payment'
                     }
                 ]
             },
@@ -652,16 +691,35 @@ class LoanCalculator {
                             text: 'Date'
                         }
                     },
-                    y: {
+                    'y-balance': {
+                        type: 'linear',
+                        position: 'left',
                         beginAtZero: true,
                         title: {
                             display: true,
-                            text: 'Balance ($)'
+                            text: 'Loan Balance ($)'
+                        },
+                        ticks: {
+                            callback: (value) => {
+                                return '$' + (value / 1000).toFixed(0) + 'k';
+                            }
+                        }
+                    },
+                    'y-payment': {
+                        type: 'linear',
+                        position: 'right',
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Monthly Payment ($)'
                         },
                         ticks: {
                             callback: (value) => {
                                 return '$' + value.toLocaleString();
                             }
+                        },
+                        grid: {
+                            drawOnChartArea: false // Don't draw grid lines for this axis
                         }
                     }
                 }
