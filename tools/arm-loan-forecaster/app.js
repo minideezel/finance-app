@@ -346,6 +346,10 @@ class LoanCalculator {
         let month = 0;
         let lastRate = -1;
         let currentMonthlyPayment = 0;
+        
+        // Track the "baseline" balance (what it would be without extra/one-time payments)
+        // This is used to calculate what the payment should be at rate changes
+        let baselineBalance = principal;
 
         while (balance > 0.01 && month < totalMonths * 2) { // Max 2x original term to prevent infinite loop
             const currentDate = new Date(startDate);
@@ -358,11 +362,17 @@ class LoanCalculator {
             // Check if we need to recalculate payment due to rate change
             const isRateChange = (month === 0 || currentRate !== lastRate);
             if (isRateChange) {
-                // Recalculate payment to maintain original term end date
+                // Recalculate payment based on baseline balance (not actual balance)
+                // This ensures one-time payments don't reduce the monthly payment
                 const remainingMonths = totalMonths - month;
-                currentMonthlyPayment = this.calculateMonthlyPayment(balance, currentRate, remainingMonths);
+                currentMonthlyPayment = this.calculateMonthlyPayment(baselineBalance, currentRate, remainingMonths);
                 lastRate = currentRate;
             }
+            
+            // Update baseline balance (what the balance would be without extras)
+            const baselineInterest = baselineBalance * monthlyRate;
+            const baselinePrincipal = currentMonthlyPayment - baselineInterest;
+            baselineBalance = Math.max(0, baselineBalance - baselinePrincipal);
 
             // Calculate interest for this period
             const interestPayment = balance * monthlyRate;
