@@ -346,6 +346,7 @@ class LoanCalculator {
         let month = 0;
         let lastRate = -1;
         let currentMonthlyPayment = 0;
+        let previousDate = null;
         
         // Track the "baseline" balance (what it would be without extra/one-time payments)
         // This is used to calculate what the payment should be at rate changes
@@ -386,11 +387,23 @@ class LoanCalculator {
                 extraPayment = extraMonthly;
             }
 
-            // Check for one-time payments on this date
-            const dateString = currentDate.toISOString().split('T')[0];
-            const oneTimePayment = oneTimePayments
-                .filter(p => p.date === dateString && p.amount > 0)
-                .reduce((sum, p) => sum + p.amount, 0);
+            // Check for one-time payments in this period
+            // We include any payments that fall after the previous payment date and up to (and including) the current payment date
+            let oneTimePayment = 0;
+            if (month === 0) {
+                // For the first payment, include anything on or before this date
+                oneTimePayment = oneTimePayments
+                    .filter(p => new Date(p.date) <= currentDate && p.amount > 0)
+                    .reduce((sum, p) => sum + p.amount, 0);
+            } else {
+                // For subsequent payments, include anything since the last payment
+                oneTimePayment = oneTimePayments
+                    .filter(p => {
+                        const pDate = new Date(p.date);
+                        return pDate > previousDate && pDate <= currentDate && p.amount > 0;
+                    })
+                    .reduce((sum, p) => sum + p.amount, 0);
+            }
 
             extraPayment += oneTimePayment;
 
@@ -432,6 +445,7 @@ class LoanCalculator {
                 isRateChange: isRateChange
             });
 
+            previousDate = new Date(currentDate);
             month++;
         }
 
