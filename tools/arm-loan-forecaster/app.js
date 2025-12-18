@@ -439,6 +439,7 @@ class LoanCalculator {
                 payment: currentMonthlyPayment,
                 principal: principalPayment,
                 interest: interestPayment,
+                cumulativeInterest: totalInterestPaid,
                 extraPayment: extraPayment,
                 balance: Math.max(0, balance),
                 rate: currentRate,
@@ -505,7 +506,9 @@ class LoanCalculator {
             const monthsSaved = original.monthsToPayoff - modified.monthsToPayoff;
             
             document.getElementById('savingsSection').classList.remove('hidden');
-            document.getElementById('interestSaved').textContent = this.formatCurrency(Math.max(0, interestSaved));
+            
+            const percentInterestSaved = original.totalInterest > 0 ? (interestSaved / original.totalInterest) * 100 : 0;
+            document.getElementById('interestSaved').innerHTML = `${this.formatCurrency(Math.max(0, interestSaved))} <span class="text-sm font-normal text-gray-500">(${percentInterestSaved.toFixed(1)}%)</span>`;
             
             const yearsSaved = Math.floor(monthsSaved / 12);
             const monthsRemaining = monthsSaved % 12;
@@ -518,7 +521,9 @@ class LoanCalculator {
             } else {
                 timeSavedText = `${monthsSaved} month${monthsSaved > 1 ? 's' : ''}`;
             }
-            document.getElementById('timeSaved').textContent = timeSavedText;
+            
+            const percentTimeSaved = original.monthsToPayoff > 0 ? (monthsSaved / original.monthsToPayoff) * 100 : 0;
+            document.getElementById('timeSaved').innerHTML = `${timeSavedText} <span class="text-sm font-normal text-gray-500">(${percentTimeSaved.toFixed(1)}%)</span>`;
         } else {
             document.getElementById('savingsSection').classList.add('hidden');
         }
@@ -610,10 +615,18 @@ class LoanCalculator {
 
         const modifiedData = modified.schedule
             .filter((_, i) => i % sampleRate === 0 || i === modified.schedule.length - 1)
-            .map(p => ({
-                x: p.date.getTime(),
-                y: p.balance
-            }));
+            .map(p => {
+                // Find corresponding original payment to calculate savings
+                // Since both start at month 1, we can use the month index
+                const originalPayment = original.schedule.find(op => op.month === p.month);
+                const interestSaved = originalPayment ? (originalPayment.cumulativeInterest - p.cumulativeInterest) : 0;
+                
+                return {
+                    x: p.date.getTime(),
+                    y: p.balance,
+                    interestSaved: Math.max(0, interestSaved)
+                };
+            });
 
         // Payment breakdown data (use modified schedule)
         const principalData = modified.schedule
@@ -696,7 +709,11 @@ class LoanCalculator {
                                 return this.formatDate(date);
                             },
                             label: (context) => {
-                                return context.dataset.label + ': ' + this.formatCurrency(context.parsed.y);
+                                let label = context.dataset.label + ': ' + this.formatCurrency(context.parsed.y);
+                                if (context.dataset.label === 'Modified Balance' && context.raw.interestSaved > 0) {
+                                    label += ` (Saved: ${this.formatCurrency(context.raw.interestSaved)})`;
+                                }
+                                return label;
                             }
                         }
                     }
