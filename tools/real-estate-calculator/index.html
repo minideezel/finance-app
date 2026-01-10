@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Real Estate Calculator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <style>
+        /* Custom Tooltip Animation */
+        .tooltip {
+            transition: opacity 0.2s;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <a href="../../index.html" class="text-blue-600 hover:text-blue-800 mb-4 inline-flex items-center">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                </svg>
+                Back to Tools
+            </a>
+            <h1 class="text-4xl font-bold text-gray-900 mb-2">Real Estate Deal Analyzer</h1>
+            <p class="text-gray-600">Model cash flow, ROI, and STR loophole tax benefits with bonus depreciation.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <!-- Inputs Panel (Left) -->
+            <div class="lg:col-span-4 space-y-6">
+                
+                <!-- Purchase Inputs -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-4 border-b pb-2">Purchase Details</h2>
+                    <div class="space-y-4">
+                        <!-- Purchase Price -->
+                        <div>
+                            <div class="flex items-center justify-between mb-1">
+                                <label class="text-sm font-medium text-gray-700">Purchase Price ($)</label>
+                                <div class="group relative">
+                                    <svg class="w-4 h-4 text-gray-400 cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                    <div class="hidden group-hover:block absolute right-0 bottom-full mb-2 w-48 p-2 bg-gray-900 text-white text-xs rounded shadow-lg z-10">
+                                        Total contract price of the property.
+                                    </div>
+                                </div>
+                            </div>
+                            <input type="number" id="purchasePrice" class="w-full px-3 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+
+                        <!-- Down Payment & Closing Costs -->
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <label class="text-sm font-medium text-gray-700">Down Payment (%)</label>
+                                    <div class="group relative">
+                                        <svg class="w-4 h-4 text-gray-400 cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                        <div class="hidden group-hover:block absolute right-0 bottom-full mb-2 w-48 p-2 bg-gray-900 text-white text-xs rounded shadow-lg z-10">
+                                            Percentage of purchase price paid upfront.
+                                        </div>
+                                    </div>
+                                </div>
+                                <input type="number" id="downPaymentPercent" class="w-full px-3 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <label class="text-sm font-medium text-gray-700">Closing Costs ($)</label>
+                                    <div class="group relative">
+                                        <svg class="w-4 h-4 text-gray-400 cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                        <div class="hidden group-hover:block absolute right-0 bottom-full mb-2 w-48 p-2 bg-gray-900 text-white text-xs rounded shadow-lg z-10">
+                                            One-time fees to close the deal (title, legal, etc).
+                                        </div>
+                                    </div>
+                                </div>
+                                <input type="number" id="closingCosts" class="w-full px-3 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                        </div>
+
+                        <!-- Loan Terms -->
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <label class="text-sm font-medium text-gray-700">Interest Rate (%)</label>
+                                    <div class="group relative">
+                                        <svg class="w-4 h-4 text-gray-400 cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                        <div class="hidden group-hover:block absolute right-0 bottom-full mb-2 w-48 p-2 bg-gray-900 text-white text-xs rounded shadow-lg z-10">
+                                            Annual annual interest rate.
+                                        </div>
+                                    </div>
+                                </div>
+                                <input type="number" id="interestRate" step="0.125" class="w-full px-3 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <label class="text-sm font-medium text-gray-700">Term (Years)</label>
+                                    <div class="group relative">
+                                        <svg class="w-4 h-4 text-gray-400 cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                        <div class="hidden group-hover:block absolute right-0 bottom-full mb-2 w-48 p-2 bg-gray-900 text-white text-xs rounded shadow-lg z-10">
+                                            Length of the loan in years (e.g. 30).
+                                        </div>
+                                    </div>
+                                </div>
+                                <input type="number" id="loanTerm" class="w-full px-3 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Income & Expenses -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-4 border-b pb-2">Income & Expenses</h2>
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <label class="text-sm font-medium text-gray-700">Monthly Rent ($)</label>
+                                    <div class="group relative">
+                                        <svg class="w-4 h-4 text-gray-400 cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                        <div class="hidden group-hover:block absolute right-0 bottom-full mb-2 w-48 p-2 bg-gray-900 text-white text-xs rounded shadow-lg z-10">
+                                            Total gross monthly rent expected.
+                                        </div>
+                                    </div>
+                                </div>
+                                <input type="number" id="monthlyRent" class="w-full px-3 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <label class="text-sm font-medium text-gray-700">Vacancy Rate (%)</label>
+                                    <div class="group relative">
+                                        <svg class="w-4 h-4 text-gray-400 cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                        <div class="hidden group-hover:block absolute right-0 bottom-full mb-2 w-48 p-2 bg-gray-900 text-white text-xs rounded shadow-lg z-10">
+                                            Estimated % of time property sits empty.
+                                        </div>
+                                    </div>
+                                </div>
+                                <input type="number" id="vacancyRate" class="w-full px-3 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <label class="text-sm font-medium text-gray-700">Prop. Tax (%)</label>
+                                    <div class="group relative">
+                                        <svg class="w-4 h-4 text-gray-400 cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                        <div class="hidden group-hover:block absolute right-0 bottom-full mb-2 w-48 p-2 bg-gray-900 text-white text-xs rounded shadow-lg z-10">
+                                            Annual Property Tax Rate as % of Purchase Price.
+                                        </div>
+                                    </div>
+                                </div>
+                                <input type="number" id="propertyTaxRate" step="0.1" class="w-full px-3 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <label class="text-sm font-medium text-gray-700">Insurance ($/yr)</label>
+                                    <div class="group relative">
+                                        <svg class="w-4 h-4 text-gray-400 cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                        <div class="hidden group-hover:block absolute right-0 bottom-full mb-2 w-48 p-2 bg-gray-900 text-white text-xs rounded shadow-lg z-10">
+                                            Annual property insurance cost.
+                                        </div>
+                                    </div>
+                                </div>
+                                <input type="number" id="insurance" class="w-full px-3 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                        </div>
+
+                         <div class="grid grid-cols-3 gap-2">
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <label class="block text-xs font-medium text-gray-700">Maint. (%)</label>
+                                    <div class="group relative">
+                                        <svg class="w-3 h-3 text-gray-400 cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                        <div class="hidden group-hover:block absolute left-0 bottom-full mb-2 w-48 p-2 bg-gray-900 text-white text-xs rounded shadow-lg z-10">
+                                            Repairs & Maintenance budget as % of Revenue.
+                                        </div>
+                                    </div>
+                                </div>
+                                <input type="number" id="maintenanceRate" class="w-full px-2 py-2 border rounded-md text-sm">
+                            </div>
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <label class="block text-xs font-medium text-gray-700">Mgmt (%)</label>
+                                    <div class="group relative">
+                                        <svg class="w-3 h-3 text-gray-400 cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                        <div class="hidden group-hover:block absolute left-0 bottom-full mb-2 w-48 p-2 bg-gray-900 text-white text-xs rounded shadow-lg z-10">
+                                            Property Management fee as % of Revenue.
+                                        </div>
+                                    </div>
+                                </div>
+                                <input type="number" id="managementRate" class="w-full px-2 py-2 border rounded-md text-sm">
+                            </div>
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <label class="block text-xs font-medium text-gray-700">CapEx (%)</label>
+                                    <div class="group relative">
+                                        <svg class="w-3 h-3 text-gray-400 cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                        <div class="hidden group-hover:block absolute right-0 bottom-full mb-2 w-48 p-2 bg-gray-900 text-white text-xs rounded shadow-lg z-10">
+                                            Capital Expenditure reserves as % of Revenue.
+                                        </div>
+                                    </div>
+                                </div>
+                                <input type="number" id="capexRate" class="w-full px-2 py-2 border rounded-md text-sm">
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="flex items-center justify-between mb-1">
+                                <label class="text-sm font-medium text-gray-700">HOA (Monthly $)</label>
+                                <div class="group relative">
+                                    <svg class="w-4 h-4 text-gray-400 cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                    <div class="hidden group-hover:block absolute right-0 bottom-full mb-2 w-48 p-2 bg-gray-900 text-white text-xs rounded shadow-lg z-10">
+                                        Home Owners Association dues.
+                                    </div>
+                                </div>
+                            </div>
+                            <input type="number" id="hoa" class="w-full px-3 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tax & Depreciation -->
+                <div class="bg-white rounded-lg shadow p-6 border-l-4 border-green-500">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-4 border-b pb-2">Tax Strategy</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex items-center justify-between mb-1">
+                                <label class="text-sm font-medium text-gray-700">Marginal Tax Rate (%)</label>
+                                <div class="group relative">
+                                    <svg class="w-4 h-4 text-gray-400 cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                    <div class="hidden group-hover:block absolute right-0 bottom-full mb-2 w-64 p-2 bg-gray-900 text-white text-xs rounded shadow-lg z-10">
+                                        Your federal + state top tax bracket. Used to calculate tax savings from losses.
+                                    </div>
+                                </div>
+                            </div>
+                            <input type="number" id="marginalTaxRate" class="w-full px-3 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+
+                        <div>
+                            <div class="flex items-center justify-between mb-1">
+                                <label class="text-sm font-medium text-gray-700">Bonus Depr. Basis ($)</label>
+                                <div class="group relative">
+                                    <svg class="w-4 h-4 text-gray-400 cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                    <div class="hidden group-hover:block absolute right-0 bottom-full mb-2 w-64 p-2 bg-gray-900 text-white text-xs rounded shadow-lg z-10">
+                                        The amount of building value allocated to 5, 7, or 15-year property (Cost Segregation result).
+                                    </div>
+                                </div>
+                            </div>
+                            <input type="number" id="bonusDepreciationEligible" class="w-full px-3 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <label class="text-sm font-medium text-gray-700">Bonus Rate (%)</label>
+                                    <div class="group relative">
+                                        <svg class="w-4 h-4 text-gray-400 cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                        <div class="hidden group-hover:block absolute right-0 bottom-full mb-2 w-48 p-2 bg-gray-900 text-white text-xs rounded shadow-lg z-10">
+                                            Allowable bonus depreciation % for this tax year (e.g. 60%, 80%).
+                                        </div>
+                                    </div>
+                                </div>
+                                <input type="number" id="bonusDepreciationRate" class="w-full px-3 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <label class="text-sm font-medium text-gray-700">Land Value (%)</label>
+                                    <div class="group relative">
+                                        <svg class="w-4 h-4 text-gray-400 cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                        <div class="hidden group-hover:block absolute right-0 bottom-full mb-2 w-48 p-2 bg-gray-900 text-white text-xs rounded shadow-lg z-10">
+                                            Land is not depreciable. Usually 20-30% of purchase price.
+                                        </div>
+                                    </div>
+                                </div>
+                                <input type="number" id="landValuePercent" class="w-full px-3 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Projections & Terms -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-4 border-b pb-2">Projections</h2>
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-2 gap-4">
+                             <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <label class="text-sm font-medium text-gray-700">Appreciation (%)</label>
+                                    <div class="group relative">
+                                        <svg class="w-4 h-4 text-gray-400 cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                        <div class="hidden group-hover:block absolute right-0 bottom-full mb-2 w-48 p-2 bg-gray-900 text-white text-xs rounded shadow-lg z-10">
+                                            Expected annual property value growth.
+                                        </div>
+                                    </div>
+                                </div>
+                                <input type="number" id="appreciationRate" step="0.5" class="w-full px-3 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <label class="text-sm font-medium text-gray-700">Rent Increase (%)</label>
+                                    <div class="group relative">
+                                        <svg class="w-4 h-4 text-gray-400 cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                        <div class="hidden group-hover:block absolute right-0 bottom-full mb-2 w-48 p-2 bg-gray-900 text-white text-xs rounded shadow-lg z-10">
+                                            Expected annual rent growth.
+                                        </div>
+                                    </div>
+                                </div>
+                                <input type="number" id="rentIncreaseRate" step="0.5" class="w-full px-3 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <label class="text-sm font-medium text-gray-700">Holding (Years)</label>
+                                    <div class="group relative">
+                                        <svg class="w-4 h-4 text-gray-400 cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                        <div class="hidden group-hover:block absolute right-0 bottom-full mb-2 w-48 p-2 bg-gray-900 text-white text-xs rounded shadow-lg z-10">
+                                            How long you plan to hold the property.
+                                        </div>
+                                    </div>
+                                </div>
+                                <input type="number" id="holdingPeriod" class="w-full px-3 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <label class="text-sm font-medium text-gray-700">Depr. Term (Yrs)</label>
+                                    <div class="group relative">
+                                        <svg class="w-4 h-4 text-gray-400 cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                        <div class="hidden group-hover:block absolute right-0 bottom-full mb-2 w-48 p-2 bg-gray-900 text-white text-xs rounded shadow-lg z-10">
+                                            27.5 for Residential, 39 for Commercial.
+                                        </div>
+                                    </div>
+                                </div>
+                                <input type="number" id="depreciationTerm" step="0.5" class="w-full px-3 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard (Right) -->
+            <div class="lg:col-span-8 space-y-6">
+                <!-- Top Metrics -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Cash to Close -->
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-gray-500 text-sm font-medium">Total Cash Needed</h3>
+                            <div class="group relative">
+                                <svg class="w-4 h-4 text-gray-400 cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                <div class="hidden group-hover:block absolute right-0 bottom-full mb-2 w-48 p-2 bg-gray-900 text-white text-xs rounded shadow-lg z-10">
+                                    Down Payment + Closing Costs
+                                </div>
+                            </div>
+                        </div>
+                        <p id="out_totalCashNeeded" class="text-2xl font-bold text-gray-900">$0</p>
+                    </div>
+
+                    <!-- Annual Cashflow -->
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-gray-500 text-sm font-medium">Annual Cash Flow</h3>
+                            <div class="group relative">
+                                <svg class="w-4 h-4 text-gray-400 cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                <div class="hidden group-hover:block absolute right-0 bottom-full mb-2 w-48 p-2 bg-gray-900 text-white text-xs rounded shadow-lg z-10">
+                                    NOI - Debt Service
+                                </div>
+                            </div>
+                        </div>
+                        <p id="out_cashFlow" class="text-2xl font-bold text-gray-900">$0</p>
+                    </div>
+
+                    <!-- Cash on Cash -->
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-gray-500 text-sm font-medium">Cash on Cash</h3>
+                            <div class="group relative">
+                                <svg class="w-4 h-4 text-gray-400 cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                <div class="hidden group-hover:block absolute right-0 bottom-full mb-2 w-64 p-2 bg-gray-900 text-white text-xs rounded shadow-lg z-10">
+                                    Annual Cash Flow / Total Cash Needed
+                                </div>
+                            </div>
+                        </div>
+                        <p id="out_coc" class="text-2xl font-bold text-blue-600">0%</p>
+                    </div>
+                </div>
+
+                <!-- Tax Benefits & ROI Section -->
+                <div class="bg-white rounded-lg shadow p-6 border-l-4 border-blue-500">
+                    <h3 class="text-lg font-bold text-gray-900 mb-4">Year 1 Tax & ROI Breakdown</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                        <div>
+                            <div class="flex items-center mb-1">
+                                <p class="text-xs text-gray-500 uppercase tracking-wide">Total Depreciation</p>
+                                <div class="group relative ml-1">
+                                    <svg class="w-3 h-3 text-gray-400 cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                    <div class="hidden group-hover:block absolute left-0 bottom-full mb-2 w-64 p-2 bg-gray-900 text-white text-xs rounded shadow-lg z-10">
+                                        Standard + Bonus Depreciation <br>
+                                        <span class="font-mono text-yellow-300" data-calc-id="depreciationCalc"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <p id="out_totalDepreciation" class="text-xl font-semibold text-gray-900">$0</p>
+                        </div>
+                        <div>
+                             <div class="flex items-center mb-1">
+                                <p class="text-xs text-gray-500 uppercase tracking-wide">Taxable Income</p>
+                                <div class="group relative ml-1">
+                                    <svg class="w-3 h-3 text-gray-400 cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                    <div class="hidden group-hover:block absolute left-0 bottom-full mb-2 w-48 p-2 bg-gray-900 text-white text-xs rounded shadow-lg z-10">
+                                        NOI - Interest - Depreciation. <br> Negative means a paper loss.
+                                    </div>
+                                </div>
+                            </div>
+                            <p id="out_taxableIncome" class="text-xl font-semibold text-gray-900">$0</p>
+                        </div>
+                        <div>
+                             <div class="flex items-center mb-1">
+                                <p class="text-xs text-gray-500 uppercase tracking-wide">Tax Savings</p>
+                                <div class="group relative ml-1">
+                                    <svg class="w-3 h-3 text-gray-400 cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                    <div class="hidden group-hover:block absolute left-0 bottom-full mb-2 w-64 p-2 bg-gray-900 text-white text-xs rounded shadow-lg z-10">
+                                        Cash value of paper loss against W-2 income.<br>
+                                        <span class="font-mono text-yellow-300" data-calc-id="taxSavingsCalc"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <p id="out_taxSavings" class="text-xl font-bold text-green-600">$0</p>
+                        </div>
+                         <div>
+                             <div class="flex items-center mb-1">
+                                <p class="text-xs text-gray-500 uppercase tracking-wide">Total ROI (Yr 1)</p>
+                                <div class="group relative ml-1">
+                                    <svg class="w-3 h-3 text-gray-400 cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                    <div class="hidden group-hover:block absolute right-0 bottom-full mb-2 w-48 p-2 bg-gray-900 text-white text-xs rounded shadow-lg z-10">
+                                        (Cash Flow + Tax Savings) / Cash Invested
+                                    </div>
+                                </div>
+                            </div>
+                            <p id="out_roiYear1" class="text-xl font-bold text-blue-600">$0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detailed Monthly Breakdown -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-lg font-bold text-gray-900 mb-4">Monthly Operating Metrics</h3>
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
+                         <div class="p-3 bg-gray-50 rounded">
+                            <div class="flex items-center justify-between">
+                                <span class="text-gray-500 block">NOI (Annual)</span>
+                                <div class="group relative">
+                                    <svg class="w-3 h-3 text-gray-400 cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                    <div class="hidden group-hover:block absolute right-0 bottom-full mb-2 w-48 p-2 bg-gray-900 text-white text-xs rounded shadow-lg z-10">
+                                        Net Operating Income.<br>Gross Income - Operating Expenses.
+                                    </div>
+                                </div>
+                            </div>
+                            <span id="out_noi" class="font-semibold text-gray-900">$0</span>
+                        </div>
+                         <div class="p-3 bg-gray-50 rounded">
+                             <div class="flex items-center justify-between">
+                                 <span class="text-gray-500 block">Mortgage P&I</span>
+                                 <div class="group relative">
+                                    <svg class="w-3 h-3 text-gray-400 cursor-help" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                    <div class="hidden group-hover:block absolute right-0 bottom-full mb-2 w-48 p-2 bg-gray-900 text-white text-xs rounded shadow-lg z-10">
+                                         <span class="font-mono text-yellow-300" data-calc-id="monthlyPICheck"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <span id="out_monthlyPI" class="font-semibold text-gray-900">$0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chart -->
+                <div class="bg-white rounded-lg shadow p-6">
+                    <canvas id="projectionChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
