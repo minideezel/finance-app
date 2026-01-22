@@ -31,8 +31,12 @@ class RealEstateCalculator {
             loanTerm: 30,
             closingCosts: 10000,
             
+            rentalStrategy: 'LTR', // 'LTR' or 'STR'
             monthlyRent: 4500,
             vacancyRate: 5,
+            avgDailyRate: 250,
+            occupancyRate: 65,
+            
             propertyTaxRate: 1.2, // Annual %
             insurance: 1200, // Annual $
             hoa: 0, // Monthly
@@ -57,7 +61,8 @@ class RealEstateCalculator {
         // Set values to inputs
         const inputs = [
             'purchasePrice', 'downPaymentPercent', 'interestRate', 'loanTerm', 'closingCosts',
-            'monthlyRent', 'vacancyRate', 'propertyTaxRate', 'insurance', 'hoa',
+            'monthlyRent', 'vacancyRate', 'avgDailyRate', 'occupancyRate', 
+            'propertyTaxRate', 'insurance', 'hoa',
             'maintenanceRate', 'managementRate', 'capexRate',
             'marginalTaxRate', 'landValuePercent', 'depreciationTerm', 
             'bonusDepreciationEligible', 'bonusDepreciationRate',
@@ -68,9 +73,46 @@ class RealEstateCalculator {
             const el = document.getElementById(id);
             if (el) el.value = this.data[id];
         });
+        
+        this.setStrategy(this.data.rentalStrategy);
+    }
+
+    setStrategy(strategy) {
+        this.data.rentalStrategy = strategy;
+        this.saveData();
+
+        const ltrInputs = document.getElementById('ltr-inputs');
+        const strInputs = document.getElementById('str-inputs');
+        const btnLtr = document.getElementById('btn-ltr');
+        const btnStr = document.getElementById('btn-str');
+
+        if (strategy === 'LTR') {
+            ltrInputs.classList.remove('hidden');
+            strInputs.classList.add('hidden');
+            
+            btnLtr.classList.remove('text-gray-500', 'hover:text-gray-900');
+            btnLtr.classList.add('bg-white', 'text-gray-900', 'shadow-sm');
+            
+            btnStr.classList.add('text-gray-500', 'hover:text-gray-900');
+            btnStr.classList.remove('bg-white', 'text-gray-900', 'shadow-sm');
+        } else {
+            strInputs.classList.remove('hidden');
+            ltrInputs.classList.add('hidden');
+            
+            btnStr.classList.remove('text-gray-500', 'hover:text-gray-900');
+            btnStr.classList.add('bg-white', 'text-gray-900', 'shadow-sm');
+            
+            btnLtr.classList.add('text-gray-500', 'hover:text-gray-900');
+            btnLtr.classList.remove('bg-white', 'text-gray-900', 'shadow-sm');
+        }
+        this.calculate();
     }
 
     attachEventListeners() {
+        // Toggle Buttons
+        document.getElementById('btn-ltr').addEventListener('click', () => this.setStrategy('LTR'));
+        document.getElementById('btn-str').addEventListener('click', () => this.setStrategy('STR'));
+
         const inputs = document.querySelectorAll('input, select');
         inputs.forEach(input => {
             input.addEventListener('input', (e) => {
@@ -100,9 +142,19 @@ class RealEstateCalculator {
         const totalCashNeeded = downPayment + this.data.closingCosts;
 
         // --- 2. Income & Expenses (Monthly Year 1) ---
-        const grossRent = this.data.monthlyRent;
-        const vacancyLoss = grossRent * (this.data.vacancyRate / 100);
-        const effectiveGrossIncome = grossRent - vacancyLoss;
+        let effectiveGrossIncome = 0;
+        
+        if (this.data.rentalStrategy === 'LTR') {
+            const grossRent = this.data.monthlyRent;
+            const vacancyLoss = grossRent * (this.data.vacancyRate / 100);
+            effectiveGrossIncome = grossRent - vacancyLoss;
+        } else {
+            // STR Logic
+            const adr = this.data.avgDailyRate;
+            const occupancy = this.data.occupancyRate / 100;
+            const grossAnnual = adr * 365 * occupancy;
+            effectiveGrossIncome = grossAnnual / 12;
+        }
 
         const propertyTaxMonthly = (purchasePrice * (this.data.propertyTaxRate / 100)) / 12;
         const insuranceMonthly = this.data.insurance / 12;
